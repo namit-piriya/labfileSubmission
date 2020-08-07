@@ -1,0 +1,42 @@
+Not verified = NOT_VERIFIED
+number does not exist in database = NUM_DOESNT_EXIST
+connection problem with db = CONN_PROB
+num exists in the db = NUM_EXISTS
+
+
+Response Status Code	Meaning
+200 Ok
+
+Successful requests other than creations and deletions.
+
+201 Created
+
+Successful creation of a queue, topic, temporary queue, temporary topic, session, producer, consumer, listener, queue browser, or message.
+
+204 No Content
+
+Successful deletion of a queue, topic, session, producer, or listener.
+
+400 Bad Request
+
+The path info doesn't have the right format, or a parameter or request body value doesn't have the right format, or a required parameter is missing, or values have the right format but are invalid in some way (for example, destination parameter does not exist, content is too big, or client ID is in use).
+
+403 Forbidden
+
+The invoker is not authorized to invoke the operation.
+
+404 Not Found
+
+The object referenced by the path does not exist.
+
+405 Method Not Allowed
+
+The method is not one of those allowed for the path.
+
+409 Conflict
+
+An attempt was made to create an object that already exists.
+
+500 Internal Server Error
+
+The execution of the service failed in some way.
