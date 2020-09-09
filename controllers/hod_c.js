@@ -1,6 +1,10 @@
 /* eslint-disable semi */
 const hodModel = require('../models/hod_m');
 const User = require('../models/user_m');
+const TeacherModel = require("../models/teacher_m");
+const {
+	checkSubcode
+} = require('../util/gen_util');
 const lognsend = require('../util/log').log;
 
 module.exports.getUnverifiedUsers = async (req, res) => {
@@ -100,17 +104,6 @@ module.exports.verifyUser = async (req, res) => {
 		})
 	}
 };
-
-// module.exports.addSubToTeacher = async (req, res) => {
-// 	const {
-// 		body
-// 	} = req;
-// 	const {
-// 		email,
-// 		subCode,
-// 		sem,
-// 	} = body;
-// };
 // module.exports.getSubInSem = async (req, res) => {
 // };
 // module.exports.getUnassignedSubjects = async (req, res) => {
@@ -165,3 +158,62 @@ module.exports.saveCurriculum = async (req, res) => {
 		});
 	}
 };
+
+module.exports.generateMarksheet = (req, res) => {
+
+}
+
+module.exports.updateCurriculum = (req, res) => {
+
+}
+
+// console.log("env variable are ", process.env.DB_STRING, process.env.DB);
+module.exports.addSubToTeacher = async (req, res) => {
+	let response, isError, devErr;
+	const {
+		body
+	} = req;
+
+	const {
+		dept
+	} = req.body.data;
+
+	const {
+		subcode,
+		teacherEmail
+	} = body;
+
+	if (!checkSubcode(subcode, dept)) {
+		response = {
+			userErr: "subcode is not valid ",
+			code: 200,
+		}
+	}
+
+	try {
+		result = await TeacherModel.addSubject(subcode, teacherEmail);
+		if(result === true){
+			response = {
+				msg:"successfully assigned the subject to given Teacher",
+				code:200
+			}
+		}
+	} catch (error) {
+		isError = true;
+		devErr = {
+			error,
+			msg: "in the addSubToTeacher"
+		};
+		response = {
+			msg: errMessage,
+			code: 500,
+		}
+	} finally {
+		res.status(response.code).json(response);
+		await lognsend({
+			response,
+			isError,
+			devErr
+		});
+	}
+}

@@ -1,15 +1,12 @@
-// run this file to run your app with the help of 'node app'
-const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
+const express = require("express");
 const check_init = require("./util/check_init");
-// const configured = require("./middleware/middleware").configured;
 const authRouter = require("./routes/auth_r");
 const studentRouter = require("./routes/student_r");
 const teacherRouter = require("./routes/teacher_r");
 const hodRouter = require("./routes/hod_r");
-dotenv.config();
 
-// global.isConfigured = false;
 global.whereis = process.env.NODE_ENV;
 global.errMessage = "something wrong happened please contact admin"
 global.debugCon = function (...obj) {
@@ -42,7 +39,6 @@ app.all("*", (req, res) => {
 		msg: "route not available"
 	});
 });
-
 
 
 // check db and logs util

@@ -12,11 +12,19 @@ module.exports.isAuthorized = async (req, res, next) => {
 			next();
 			return;
 		} catch (error) {
-			isError = true;
-			devErr = error;
-			response = {
-				msg: errMessage,
-				code: 500
+			// console.log(error.message + "in isAuthorized");
+			if (error.message === "invalid signature") {
+				response = {
+					userErr: "Please login again,token expired",
+					code: 403
+				}
+			} else {
+				isError = true;
+				devErr = error;
+				response = {
+					msg: errMessage,
+					code: 500
+				}
 			}
 			res.status(response.code).json(response);
 			return await lognsend({

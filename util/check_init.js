@@ -1,7 +1,6 @@
 const dbConnection = require("./db_util");
 const logUtil = require("./log");
 module.exports = async function () {
-
   const db = await dbConnection();
   const {
     writeErrLog,

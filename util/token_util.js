@@ -24,7 +24,8 @@ exports.verifyToken = async (token) => {
   try {
     data = await verifyJWT(token, secret);
   } catch (error) {
-    throw new Error("error in verifyJWT " + error);
+    console.log("error in verifyToken");
+    throw new Error(error.message);
   }
   return data;
 };

@@ -10,7 +10,17 @@ module.exports.checkPass = (password) => {
 
 // module.exports.saveToken = ()=>{
 
-// };
+/**
+ *	checks whether subjecct code passed is valid or not
+ *
+ * @param {*} subcode is subject code that is to be checked
+ * @param {*} dept is the dept of hod
+ * @returns true/false
+ */
+module.exports.checkSubcode = (subcode, dept) => {
+	const subcodeRegex = RegExp(`^${dept}[1-8]0[1-8]$`)
+	return subcodeRegex.test(subcode);
+};
 
 module.exports.getSemAndYear = (enrollno) => {
 	try {

@@ -111,8 +111,6 @@ class hod {
 			throw new Error(error);
 		}
 	}
-
-
 	/*
 			semAndSub will be like
 			semAndSub = [{
@@ -125,13 +123,12 @@ class hod {
 			*/
 	// form the array so that it contains subcode also, so you will have
 	//  deptName(sem)0(subjectNo+1) +1 because of 0 based indexing
-	/* 
+	/*
 	saved semAndSub (curriculum)
 	{
 		sem:
 		[subjects:[{subCode:IT101,subName:sub1}]]
 	}
-
 	*/
 
 	static async saveSubjects(dept, semAndSub) {
@@ -154,8 +151,7 @@ class hod {
 			return result ? true : false;
 
 		} catch (error) {
-			if(error.message===`E11000 duplicate key error collection: labfilesubmission.curriculum index: _id_ dup key: { _id: "IT" }`)
-			{
+			if (error.message === `E11000 duplicate key error collection: ${DB_NAME}.curriculum index: _id_ dup key: { _id: ${dept} }`) {
 				return "ALREADY_EXISTS"
 			}
 			throw new Error(error);

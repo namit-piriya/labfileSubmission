@@ -36,7 +36,7 @@ class Teacher {
 				    subCode:"",
 				    sem:
 				  }
-				] 
+				]
 				 */
 				if (result) {
 					return true;
@@ -57,9 +57,24 @@ class Teacher {
 		}
 	}
 
-	// static async addSubject(email, sem, subCode) {
-
-	// }
+	static async addSubject(subcode, teacherEmail) {
+		try {
+			db = !db ? await getDbConnection() : db;
+			const result = await db.collection("teachers").findOneAndUpdate({
+				_id: teacherEmail
+			}, {
+				$push: {
+					teaches: subcode
+				}
+			});
+			// console.log(result);
+			if (result.lastErrorObject.n === 1) {
+				return true
+			} else false;
+		} catch (error) {
+			throw new Error(error);
+		}
+	}
 }
 
 module.exports = Teacher;
