@@ -1,0 +1,73 @@
+#  register teacher
+# POST  http://localhost:8000/teacher/register_teacher HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "name":"namit",
+#     "email":"namitteacher@gmail.com",
+#     "password":"123@Teacher",
+#     "dept":"IT"
+# }
+
+## login teacher
+# POST  http://localhost:8000/auth/login_user HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "userType":"teacher",
+#     "email":"namitteacher@gmail.com",
+#     "password":"123@Teacher",
+#     "dept":"IT"
+# }
+
+# login admin/hod
+# POST  http://localhost:8000/auth/login_user HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "userType":"hod",
+#     "email":"admin@lab.com",
+#     "password":"123@Admin",
+#     "dept":"IT"
+# }
+
+# admin token
+# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGxhYi5jb20iLCJkZXB0IjoiSVQiLCJpYXQiOjE2MDIwNDEzMjksImV4cCI6MTYwMjEyNzcyOX0.EQeaKEm4yQthA7cd5NPT84PK268OFX8MYtYl-hk6khg
+# get unverified teachers
+# GET http://localhost:8000/hod/get_unverified_users?user_type=teacher HTTP/1.1
+# Authorization: Bearer 
+
+# verify a teacher
+# POST http://localhost:8000/hod/verify_user?user_type=teacher
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGxhYi5jb20iLCJkZXB0IjoiSVQiLCJpYXQiOjE2MDIwNDEzMjksImV4cCI6MTYwMjEyNzcyOX0.EQeaKEm4yQthA7cd5NPT84PK268OFX8MYtYl-hk6khg
+# Content-Type: application/json
+
+# {
+#     "email":"namitteacher@gmail.com"
+# }
+
+# saving curriculum
+# POST http://localhost:8000/hod/save_curriculum
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGxhYi5jb20iLCJkZXB0IjoiSVQiLCJpYXQiOjE2MDIwNDEzMjksImV4cCI6MTYwMjEyNzcyOX0.EQeaKEm4yQthA7cd5NPT84PK268OFX8MYtYl-hk6khg
+# Content-Type: application/json
+
+# {
+#     "semAndSub":[{
+#         "sem":3,
+#         "subjects":["sub1","sub2","sub3","sub4","sub5","sub6","sub7"]
+#     }]
+# }
+
+# POST http://localhost:8000/hod/add_sub_to_teacher
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGxhYi5jb20iLCJkZXB0IjoiSVQiLCJpYXQiOjE2MDIwNDEzMjksImV4cCI6MTYwMjEyNzcyOX0.EQeaKEm4yQthA7cd5NPT84PK268OFX8MYtYl-hk6khg
+# Content-Type: application/json
+
+# {
+#     "subName" : "sub1",
+#     "subcode":"IT301",
+#     "teacherEmail":"namitteacher@gmail.com"
+# }
+
+# GET http://localhost:8000/hod/info_of_teachers
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGxhYi5jb20iLCJkZXB0IjoiSVQiLCJpYXQiOjE2MDIwNDEzMjksImV4cCI6MTYwMjEyNzcyOX0.EQeaKEm4yQthA7cd5NPT84PK268OFX8MYtYl-hk6khg
+
