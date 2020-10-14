@@ -1,5 +1,8 @@
 const dbConnection = require("../util/db_util");
 const User = require("./user_m");
+
+const getSemFromSubcode = require("../util/gen_util").getSemFromSubcode;
+
 /*
   no need to be catching  errors here because these methods will be called by controllers 
   so catch error there instead
@@ -16,7 +19,7 @@ const User = require("./user_m");
 */
 let db;
 
-class hod {
+class HOD {
   /**
    * @static
    * @param {string} userType
@@ -133,23 +136,61 @@ class hod {
   saved semAndSub (curriculum)
   {
     sem:
-    [subjects:[{subCode:IT101,subName:sub1}]]
+    [subjects:[{subcode:IT101,subName:sub1}]]
   }
   */
 
   // in this version you have to insert all the sem and subject at once
   // to do -- this can be  updated as sem
 
-  static async saveSubjects(dept, semAndSub) {
+  /*  also add subjects in a collection
+   I can add teacher object in the teacher array so fetching will be easy instead of applying aggregation
+    at most every subject will have three teacher I won't run out of my docment storage and won't have to 
+    touch another collection
+   */
+  static async saveSubjects(dept, subjects) {
+    let result = null;
+    db = !db ? await dbConnection() : db;
+    try {
+      console.log(JSON.stringify(subjects) + "is subjects");
+      const toInsert = subjects.map((subject) => {
+        return {
+          dept,
+          _id: subject.subcode,
+          subName: subject.subName,
+          labFiles: [],
+          assignments: [],
+          teachers: [],
+          sem: getSemFromSubcode(subject.subcode),
+        };
+      });
+      console.log("toInsert is in saveSubjects " + JSON.stringify(toInsert));
+      result = await db.collection("subjects").insertMany(toInsert);
+      if (result.insertedCount >= 1) {
+        return true;
+      } else return false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async saveSubjectsInCurriculum(dept, semAndSub) {
     try {
       db = !db ? await dbConnection() : db;
+      const subjects = new Set();
       semAndSub.forEach((ele) => {
-        ele.subjects = ele.subjects.map((subjects, subjectNo) => {
-          let subCode =
+        let sem = ele.sem;
+        ele.subjects = ele.subjects.map((subject, subjectNo) => {
+          let subcode =
             dept + ele.sem.toString() + "0" + (subjectNo + 1).toString();
+          subjects.add({
+            subName: subject,
+            subcode,
+            sem,
+          });
           return {
-            subCode,
-            subName: subjects,
+            subcode,
+            subName: subject,
           };
         });
       });
@@ -159,8 +200,14 @@ class hod {
         {
           _id: dept,
         },
-        { $addToSet: { curriculum: { $each: semAndSub } } }
+        { $addToSet: { curriculum: { $each: semAndSub } } },
+        {
+          upsert: true,
+        }
       );
+      console.log("result after insertion ", result);
+      console.log(subjects);
+      await HOD.saveSubjects(dept, [...subjects]);
 
       return result.lastErrorObject.n === 1;
     } catch (error) {
@@ -186,6 +233,65 @@ class hod {
       throw new Error(error);
     }
   }
+
+  // fetch teacher document's teaches and extract those objects which are equal to the given sem
+  // but If a subject is not assigned teacher the subject will not be shown
+  // so here the good chice will be to fetch from subjects
+  // and then fetch teachers from there
+  static async getInfoOfSem(dept, sem) {
+    try {
+      db = !db ? await dbConnection() : db;
+      let result = await db
+        .collection("subjects")
+        .find(
+          {
+            $and: [{ sem }, { dept }],
+          },
+          {
+            teachers: 1,
+            subName: 1,
+          }
+        )
+        .toArray();
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
 
-module.exports = hod;
+module.exports = HOD;
+
+// db.curriculum.aggregate([
+//   {
+//     $unwind: {
+//       path: "$curriculum",
+//     },
+//   },
+//   {
+//     $match: {
+//       "curriculum.sem": { $eq: 1 },
+//     },
+//   },
+//   {
+//     $unwind: {
+//       path: "$curriculum.subjects",
+//     },
+//   },
+//   {
+//     $replaceRoot: { newRoot: "$curriculum" },
+//   },
+//   {
+//     $project: {
+//       _id: 0,
+//     },
+//   },
+//   {
+//     $lookup: {
+//       from: "teachers",
+//       localField: "subjects.subcode",
+//       foreignField: "teaches.$",
+//       as: "teachers",
+//     },
+//   },
+// ]);
