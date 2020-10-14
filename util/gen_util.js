@@ -1,49 +1,51 @@
 module.exports.checkEmail = (email) => {
-	const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-	return email.match(emailRegex);
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  return email.match(emailRegex);
 };
 
 module.exports.checkPass = (password) => {
-	const passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/
-	return password.match(passRegex);
-}
+  const passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
+  return password.match(passRegex);
+};
 
-// module.exports.saveToken = ()=>{
+// subjects code are IT701 which is of 7th sem
+module.exports.getSemFromSubcode = (subcode) => {
+  return subcode[2];
+};
 
 /**
- *	checks whether subjecct code passed is valid or not
+ *	checks whether subject code passed is valid or not
  *
  * @param {*} subcode is subject code that is to be checked
  * @param {*} dept is the dept of hod
  * @returns true/false
  */
 module.exports.checkSubcode = (subcode, dept) => {
-	const subcodeRegex = RegExp(`^${dept}[1-8]0[1-8]$`)
-	return subcodeRegex.test(subcode);
+  const subcodeRegex = RegExp(`^${dept}[1-8]0[1-8]$`);
+  return subcodeRegex.test(subcode);
 };
 
 module.exports.getSemAndYear = (enrollno) => {
-	try {
-		const regex = RegExp("[A-Z][1-2][0-9]");
-		const charYear = enrollno.match(regex)[0];
-		const enrollYear = parseInt("20" + charYear.substring(1));
-		const curMonth = new Date().getMonth()
-		const curYear = new Date().getFullYear();
-		let year = curYear - enrollYear;
-		if (curMonth >= 5 && curMonth < 12) {
-			++year;
-		}
-		if (year > 4) return false;
-		let sem;
-		if (curMonth >= 0 && curMonth < 6)
-			sem = 2 * year;
-		else sem = 2 * year - 1;
-		return {
-			year,
-			sem
-		}
-	} catch (error) {
-		// console.log(error);
-		throw new Error(error);
-	}
+  try {
+    const regex = RegExp("[A-Z][1-2][0-9]");
+    const charYear = enrollno.match(regex)[0];
+    const enrollYear = parseInt("20" + charYear.substring(1));
+    const curMonth = new Date().getMonth();
+    const curYear = new Date().getFullYear();
+    let year = curYear - enrollYear;
+    if (curMonth >= 5 && curMonth < 12) {
+      ++year;
+    }
+    if (year > 4) return false;
+    let sem;
+    if (curMonth >= 0 && curMonth < 6) sem = 2 * year;
+    else sem = 2 * year - 1;
+    return {
+      year,
+      sem,
+    };
+  } catch (error) {
+    // console.log(error);
+    throw new Error(error);
+  }
 };
