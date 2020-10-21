@@ -3,11 +3,16 @@ const User = require("./user_m");
 const hashUtil = require("../util/hash_util");
 const { getSemFromSubcode } = require("../util/gen_util");
 let db;
+
+async function dbInit() {
+  return (db = !db ? await getDbConnection() : db);
+}
+
 class Teacher {
   static async registerTeacher(email, name, password, dept) {
     try {
       let result;
-      db = !db ? await getDbConnection() : db;
+      db = await dbInit();
       result = await db.collection("teachers").findOne({
         _id: email,
       });
@@ -60,23 +65,63 @@ class Teacher {
 
   static async addSubject(subName, subcode, teacherEmail) {
     try {
-      db = !db ? await getDbConnection() : db;
+      db = await dbInit();
       let sem = getSemFromSubcode(subcode);
+
       const result = await db.collection("teachers").findOneAndUpdate(
         {
           _id: teacherEmail,
         },
         {
-          $push: {
+          $addToSet: {
             teaches: { subcode, subName, sem },
           },
         }
       );
-      console.log(result);
       // console.log(result);
       if (result.lastErrorObject.n === 1) {
         return true;
       } else false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async addLabFiles(dept, subcode, fileNames) {
+    try {
+      db = await dbInit();
+      let updateResult = await db
+        .collection("subjects")
+        .findOneAndUpdate(
+          { _id: subcode, dept },
+          { $addToSet: { labFiles: { $each: fileNames } } },
+          { upsert: true }
+        );
+      if (updateResult.lastErrorObject.n === 1) {
+        return true;
+      } else return false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  static async getSubjectsAssigned(dept, email) {
+    db = await dbInit();
+    try {
+      let result = await db
+        .collection("teachers")
+        .findOne(
+          {
+            _id: email,
+            dept,
+          },
+          {
+            projection: {
+              teaches: 1,
+            },
+          }
+        )
+        .toArray();
+      return result;
     } catch (error) {
       throw new Error(error);
     }
