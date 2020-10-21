@@ -2,6 +2,7 @@ const hodModel = require("../models/hod_m");
 const User = require("../models/user_m");
 const TeacherModel = require("../models/teacher_m");
 const { checkSubcode, checkEmail } = require("../util/gen_util");
+const { isNumber } = require("lodash");
 const log = require("../util/log").log;
 
 module.exports.getUnverifiedUsers = async (req, res) => {
@@ -154,9 +155,10 @@ module.exports.saveCurriculum = async (req, res) => {
 		}
 	*/
   const { semAndSub } = body;
-  // console.log(req.body);
+  // console.log(semAndSub);
   try {
-    result = await hodModel.saveSubjects(dept, semAndSub);
+    result = await hodModel.saveSubjectsInCurriculum(dept, semAndSub);
+
     if (result === "ALREADY_EXISTS") {
       response = {
         code: 200,
@@ -166,6 +168,12 @@ module.exports.saveCurriculum = async (req, res) => {
       response = {
         msg: "Curriculum saved",
         code: 200,
+      };
+    } else {
+      console.log(result);
+      response = {
+        code: 500,
+        msg: errMessage,
       };
     }
   } catch (error) {
@@ -198,6 +206,7 @@ module.exports.addSubToTeacher = async (req, res) => {
 
   const { subName, subcode, teacherEmail } = body;
 
+  console.log(subName, subcode, teacherEmail);
   if (!subcode || !subName || !teacherEmail) {
     response = {
       userErr: "input not valid ",
@@ -253,11 +262,6 @@ module.exports.addSubToTeacher = async (req, res) => {
   }
 };
 
-// module.exports.infoOfSem = (req, res) => {
-//   let isError, devErr, response;
-//   let sem = req.params.sem;
-// };
-
 module.exports.infoOfTeachers = async (req, res) => {
   const { dept } = req.body.data;
   let isError, devErr, response;
@@ -278,5 +282,48 @@ module.exports.infoOfTeachers = async (req, res) => {
     };
     res.status(response.code).json(response);
     await log({ response });
+  }
+};
+/**
+ *returns error or an object with a result key which contains
+ *{
+   teachers:[],
+   subName:""
+ }
+ * @param {*} req
+ * @param {*} res
+ */
+module.exports.infoOfSem = async (req, res) => {
+  let response, isError, devErr;
+
+  const { dept } = req.body.data;
+  let sem = +req.params.sem;
+  console.log(sem);
+  if (!isNumber(sem) || !(sem <= 8)) {
+    response = {
+      error: false,
+      userErr: "please send valid semester",
+    };
+    res.status(200).json(response);
+    return await log({ response });
+  }
+  try {
+    const result = await hodModel.getInfoOfSem(dept, sem);
+    response = {
+      error: false,
+      result,
+    };
+    res.status(200).json(response);
+    return await log({ response });
+  } catch (error) {
+    isError = true;
+    devErr = error;
+    response = {
+      error: true,
+      msg: errMessage,
+      code: 500,
+    };
+    res.status(response.code).json(response);
+    return await log({ response });
   }
 };
