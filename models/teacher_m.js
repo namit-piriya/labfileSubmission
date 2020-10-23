@@ -90,11 +90,32 @@ class Teacher {
   static async addLabFiles(dept, subcode, fileNames) {
     try {
       db = await dbInit();
+      let findResult = await db.collection("subjects").findOne(
+        { _id: subcode, dept },
+        {
+          labFiles: 1,
+        }
+      );
+
+      // adding Ids to labfiles
+      let toInsertId;
+      if (findResult.labFiles.length === 0) {
+        toInsertId = 1;
+      } else {
+        toInsertId = findResult.labFiles.length + 1;
+      }
+      let fileNamesWithIds = fileNames.map((fileName) => {
+        return {
+          fileName,
+          id: toInsertId++,
+        };
+      });
+
       let updateResult = await db
         .collection("subjects")
         .findOneAndUpdate(
           { _id: subcode, dept },
-          { $addToSet: { labFiles: { $each: fileNames } } },
+          { $addToSet: { labFiles: { $each: fileNamesWithIds } } },
           { upsert: true }
         );
       if (updateResult.lastErrorObject.n === 1) {
