@@ -81,7 +81,7 @@ class Teacher {
       // console.log(result);
       if (result.lastErrorObject.n === 1) {
         return true;
-      } else false;
+      } else return false;
     } catch (error) {
       throw new Error(error);
     }
@@ -125,25 +125,70 @@ class Teacher {
       throw new Error(error);
     }
   }
-  static async getSubjectsAssigned(dept, email) {
+
+  static async getAssignedSubjects(dept, email) {
     db = await dbInit();
     try {
-      let result = await db
+      let result = await db.collection("teachers").findOne(
+        {
+          _id: email,
+          dept,
+        },
+        {
+          projection: {
+            teaches: 1,
+            _id: 0,
+          },
+        }
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(error);
+    }
+  }
+
+  static async getUnverifiedStudents(dept, email) {
+    try {
+      db = await dbInit();
+      // fetch all sem that teacher teaches
+      let teacherSemList = await db
         .collection("teachers")
-        .findOne(
+        .distinct("teaches.sem", { dept, _id: email });
+      console.log(teacherSemList);
+      // teacherSemListObj = [...new Set(teacherSemList.teaches)];
+      // teacherSemList = teacherSemList.map((obj) => obj.sem);
+      // to do implement pagination
+      // fetch all the student with the matching criteria
+      if (teacherSemList.length === 0) {
+        return "NO_SEM";
+      }
+      const studentsLookup = await db
+        .collection("students")
+        .find(
           {
-            _id: email,
-            dept,
+            verified: false,
+            semester: { $in: teacherSemList },
           },
           {
             projection: {
-              teaches: 1,
+              password: 0,
+              tokens: 0,
+              verified: 0,
             },
           }
         )
         .toArray();
-      return result;
+      return studentsLookup.map((obj) => {
+        email = obj._id;
+        delete obj._id;
+        return {
+          ...obj,
+          email,
+        };
+      });
     } catch (error) {
+      console.log(error);
       throw new Error(error);
     }
   }

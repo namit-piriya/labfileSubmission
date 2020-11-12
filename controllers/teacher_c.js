@@ -180,18 +180,19 @@ module.exports.getUnverifiedStudents = async (req, res) => {
 
 module.exports.assignDueDateToLabFile = async (req, res) => {};
 
-module.exports.getSubjectsAssigned = async (req, res) => {
+module.exports.getAssignedSubjects = async (req, res) => {
   let { dept, email } = req.body.data;
   let isError, response, devErr;
   try {
-    let result = await TeacherModel.getSubjectsAssigned(dept, email);
-    if (!isArray(result)) {
+    let result = await TeacherModel.getAssignedSubjects(dept, email);
+    console.log(result);
+    if (!result.teaches) {
       response = {
         error: true,
         code: 500,
         msg: errMessage,
       };
-    } else response = { code: 200, teaches, error: false };
+    } else response = { code: 200, teaches: result.teaches, error: false };
   } catch (error) {
     isError = true;
     devErr = error;
