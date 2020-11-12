@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-// const helmet = require("helmet");
+const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const express = require("express");
@@ -23,38 +23,14 @@ global.debugCon = function (...obj) {
   }
 };
 
-// app.use(configured);
 const app = express();
 
-// for post requests, parsing body
-const bodyParser = require("body-parser");
-const { response } = require("express");
-const { isError } = require("lodash");
-
 // This will help parsing the body
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
 
 // for parsing json data
-app.use(bodyParser.json());
 app.use(express.json());
 
-app.use(async (err, req, res, next) => {
-  console.log("my error handler");
-  if (err) {
-    console.log(err);
-    let isError = true;
-    let devErr = err;
-    let response = { msg: errMessage, code: 500 };
-    res.status(response.code).json();
-    return await log({ response, isError, devErr });
-  }
-  next();
-});
-
+app.use(helmet());
 // logging with morgan
 app.use(morgan("combined"));
 // using cors
@@ -73,11 +49,24 @@ app.all("*", (req, res) => {
   });
 });
 
-// check db and logs util
+app.use((err, req, res, next) => {
+  resObj = {
+    msg: app.locals.errMessage,
+    error: true,
+  };
+  res.status(500).json(resObj);
+  log({
+    isError: true,
+    error: err,
+    response: resObj,
+  });
+});
+// check db and logs util either they are working or not
+// If Database connection is not established server will not start
 (async () => {
   await check_init();
 })()
-  .then((result) => {
+  .then((_) => {
     const port = process.env.PORT || 8000;
     app.listen(port);
     console.log(`listening on ${port}....`);

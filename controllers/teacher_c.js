@@ -110,6 +110,7 @@ module.exports.addLabFiles = async (req, res) => {
     return await log({ response });
   }
 
+  /* fileNames will also have an id to recognize the no of the file */
   try {
     const dbResult = await TeacherModel.addLabFiles(dept, subcode, fileNames);
     if (dbResult) {
@@ -140,7 +141,42 @@ module.exports.addLabFiles = async (req, res) => {
   }
 };
 
-module.exports.getUnverifiedStudents = async (req, res) => {};
+/*  need to have dept of teacher(token) email for(verified object)
+    and sem in which teacher teaches
+*/
+module.exports.getUnverifiedStudents = async (req, res) => {
+  let response, isError, devErr;
+  const { body } = req;
+  const { dept, email } = body.data;
+  try {
+    const dbResult = await TeacherModel.getUnverifiedStudents(dept, email);
+    if (dbResult === "NO_SEM") {
+      response = {
+        code: 200,
+        msg: "You are not assigned any semester",
+      };
+      res.status(response.code).json(response);
+      return log({ response });
+    } else {
+      response = {
+        code: 200,
+        unverifiedStudents: dbResult,
+      };
+    }
+  } catch (error) {
+    isError = true;
+    devErr = error;
+    resposne = {
+      code: 500,
+      msg: errMessage,
+    };
+  } finally {
+    console.log(this);
+    console.log("error in teacher_c controller" + devErr);
+    res.status(response.code).json(response);
+    return await log({ response, isError, devErr });
+  }
+};
 
 module.exports.assignDueDateToLabFile = async (req, res) => {};
 
